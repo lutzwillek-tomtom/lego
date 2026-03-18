@@ -21,13 +21,13 @@ import (
 
 func setupChallenges(ctx *cli.Context, client *lego.Client) {
 	if !ctx.Bool(flgHTTP) && !ctx.Bool(flgTLS) && !ctx.IsSet(flgDNS) && !ctx.Bool(flgNoSolver) {
-		log.Fatalf("No challenge selected. You must specify at least one challenge: `--%s`, `--%s`, `--%s`.", flgHTTP, flgTLS, flgDNS)
+		log.Fatalf("No challenge selected. You must specify at least one challenge: `--%s`, `--%s`, `--%s`, `--%s`.", flgHTTP, flgTLS, flgDNS, flgNoSolver)
 	}
 
 	if ctx.Bool(flgNoSolver) {
 		// Register a no-op provider for all challenge types.
 		// This is useful when the ACME server does not require challenge validation,
-		// e.g., when using pre-authorized domains or EAB with pre-authorized accounts.
+		// e.g., when using EAB with pre-authorized domains and pre-authorized accounts.
 		err := client.Challenge.SetHTTP01Provider(&noopProvider{})
 		if err != nil {
 			log.Fatal(err)

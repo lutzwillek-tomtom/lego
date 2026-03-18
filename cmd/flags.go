@@ -132,7 +132,7 @@ func CreateFlags(defaultPath string) []cli.Flag {
 		},
 		&cli.BoolFlag{
 			Name:  flgNoSolver,
-			Usage: "Disable the challenge solver. Should be used when the ACME server does not require challenge validation (e.g. pre-authorized domains or EAB with pre-authorized accounts).",
+			Usage: "Disable the challenge solver. Cannot be mixed with other challenge types. Should only be used with `--eab` when the ACME server pre-authorizes domains and does not require challenge validation.",
 		},
 		&cli.BoolFlag{
 			Name:  flgHTTP,

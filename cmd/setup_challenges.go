@@ -206,7 +206,7 @@ func isSetBool(ctx *cli.Context, name string) bool {
 
 // noopProvider is a challenge provider that does nothing.
 // It is used when the ACME server does not require challenge validation,
-// e.g., when using pre-authorized domains or EAB with pre-authorized accounts.
+// e.g., when using EAB with pre-authorized domains and pre-authorized accounts.
 type noopProvider struct{}
 
 func (n *noopProvider) Present(domain, token, keyAuth string) error { return nil }

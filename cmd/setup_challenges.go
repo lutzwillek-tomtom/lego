@@ -25,28 +25,7 @@ func setupChallenges(ctx *cli.Context, client *lego.Client) {
 	}
 
 	if ctx.Bool(flgNoSolver) {
-		if !ctx.Bool(flgEAB) {
-			log.Fatalf("The `--%s` flag requires `--%s`. It should only be used when the ACME server pre-authorizes domains via EAB.", flgNoSolver, flgEAB)
-		}
-
-		// Register a no-op provider for all challenge types.
-		// This is useful when the ACME server does not require challenge validation,
-		// e.g., when using EAB with pre-authorized domains and pre-authorized accounts.
-		err := client.Challenge.SetHTTP01Provider(&noopProvider{})
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		err = client.Challenge.SetTLSALPN01Provider(&noopProvider{})
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		err = client.Challenge.SetDNS01Provider(&noopProvider{})
-		if err != nil {
-			log.Fatal(err)
-		}
-
+		setupNoSolver(ctx, client)
 		return
 	}
 
@@ -206,6 +185,30 @@ func checkPropagationExclusiveOptions(ctx *cli.Context) error {
 
 func isSetBool(ctx *cli.Context, name string) bool {
 	return ctx.IsSet(name) && ctx.Bool(name)
+}
+
+func setupNoSolver(ctx *cli.Context, client *lego.Client) {
+	if !ctx.Bool(flgEAB) {
+		log.Fatalf("The `--%s` flag requires `--%s`. It should only be used when the ACME server pre-authorizes domains via EAB.", flgNoSolver, flgEAB)
+	}
+
+	// Register a no-op provider for all challenge types.
+	// This is useful when the ACME server does not require challenge validation,
+	// e.g., when using EAB with pre-authorized domains and pre-authorized accounts.
+	err := client.Challenge.SetHTTP01Provider(&noopProvider{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = client.Challenge.SetTLSALPN01Provider(&noopProvider{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = client.Challenge.SetDNS01Provider(&noopProvider{})
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 // noopProvider is a challenge provider that does nothing.

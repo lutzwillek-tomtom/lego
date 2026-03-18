@@ -25,6 +25,10 @@ func setupChallenges(ctx *cli.Context, client *lego.Client) {
 	}
 
 	if ctx.Bool(flgNoSolver) {
+		if !ctx.Bool(flgEAB) {
+			log.Fatalf("The `--%s` flag requires `--%s`. It should only be used when the ACME server pre-authorizes domains via EAB.", flgNoSolver, flgEAB)
+		}
+
 		// Register a no-op provider for all challenge types.
 		// This is useful when the ACME server does not require challenge validation,
 		// e.g., when using EAB with pre-authorized domains and pre-authorized accounts.

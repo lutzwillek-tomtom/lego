@@ -20,8 +20,30 @@ import (
 )
 
 func setupChallenges(ctx *cli.Context, client *lego.Client) {
-	if !ctx.Bool(flgHTTP) && !ctx.Bool(flgTLS) && !ctx.IsSet(flgDNS) {
+	if !ctx.Bool(flgHTTP) && !ctx.Bool(flgTLS) && !ctx.IsSet(flgDNS) && !ctx.Bool(flgNoSolver) {
 		log.Fatalf("No challenge selected. You must specify at least one challenge: `--%s`, `--%s`, `--%s`.", flgHTTP, flgTLS, flgDNS)
+	}
+
+	if ctx.Bool(flgNoSolver) {
+		// Register a no-op provider for all challenge types.
+		// This is useful when the ACME server does not require challenge validation,
+		// e.g., when using pre-authorized domains or EAB with pre-authorized accounts.
+		err := client.Challenge.SetHTTP01Provider(&noopProvider{})
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		err = client.Challenge.SetTLSALPN01Provider(&noopProvider{})
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		err = client.Challenge.SetDNS01Provider(&noopProvider{})
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		return
 	}
 
 	if ctx.Bool(flgHTTP) {
@@ -181,3 +203,11 @@ func checkPropagationExclusiveOptions(ctx *cli.Context) error {
 func isSetBool(ctx *cli.Context, name string) bool {
 	return ctx.IsSet(name) && ctx.Bool(name)
 }
+
+// noopProvider is a challenge provider that does nothing.
+// It is used when the ACME server does not require challenge validation,
+// e.g., when using pre-authorized domains or EAB with pre-authorized accounts.
+type noopProvider struct{}
+
+func (n *noopProvider) Present(domain, token, keyAuth string) error { return nil }
+func (n *noopProvider) CleanUp(domain, token, keyAuth string) error { return nil }
